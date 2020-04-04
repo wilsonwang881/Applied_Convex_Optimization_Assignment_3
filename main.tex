@@ -34,15 +34,131 @@
     
     \item %Q1
     
+    Re-write the constraint functions:
+    
+    \begin{equation*}
+        \begin{aligned}
+            \max (l, l_0 \cdot \Vec{1}) &\preceq x \\
+            - x &\preceq - \max (l, l_0 \cdot \Vec{1}) \\
+        \end{aligned}
+    \end{equation*}
+    
+    Which is equivalent to:
+    
+    \begin{gather*}
+        \begin{cases}
+            -x \preceq - l \\
+            -x \preceq - l_0 \cdot \Vec{1}
+        \end{cases}
+    \end{gather*}
+    
+    Moving to the standard form:
+    
+    \begin{gather*}
+        \begin{cases}
+            -x + l \preceq 0 \\
+            -x + l_0 \cdot \Vec{1} \preceq 0
+        \end{cases}
+    \end{gather*}
+    
+    Similarly for $x \preceq \min (u, u_0 \cdot \Vec{1})$:
+    
+    \begin{gather*}
+        \begin{cases}
+            x \preceq u \\
+            x \preceq u_0 \cdot \Vec{1}
+        \end{cases}
+    \end{gather*}
+    
+    Moving to the standard form:
+    
+    \begin{gather*}
+        \begin{cases}
+            x - u \preceq 0 \\
+            x - u_0 \cdot \Vec{1} \preceq 0
+        \end{cases}
+    \end{gather*}
+    
+    The Lagrangian is:
+    
+    \begin{equation*}
+        L(x, \lambda) = c^T x + \sum_{i = 1}^{4} \lambda_i f_i (x)
+    \end{equation*}
+    
+    The Lagrange dual function is:
+    
+    \begin{equation*}
+        \begin{aligned}
+            g(\lambda) &= \inf_{x \in D} (c^T x + \sum_{i = 1}^{4} \lambda_i f_i (x)) \\
+            &= \inf_{x \in D} (c^T x + \lambda_1(- x + l) + \lambda_2(- x + l_0 \cdot \Vec{1}) + \lambda_3(x - u) + \lambda_4(x - u_0 \cdot \Vec{1})) \\
+            &= \inf_{x \in D} ((c^T - \lambda_1 - \lambda_2 + \lambda_3 + \lambda_4) x + (\lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1}))
+        \end{aligned}
+    \end{equation*}
+    
+    Hence,
+
+    \begin{gather*}
+    g (\lambda) =
+        \begin{cases}
+            \lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1} ,\ \ \ \  c^T - \lambda_1 - \lambda_2 + \lambda_3 + \lambda_4 = 0 \\
+            - \infty ,\ \ \ \  otherwise
+        \end{cases}
+    \end{gather*}
+    
     \item %Q2
     
     \begin{enumerate}
         
-        \item 
+        \item %a
         
-        \item
+        Minimize the maximum of a sequence of functions is equivalent to, but not identical to, minimize all the functions when they are arranged in order. Let $a_m^T x + b_m$ be the function that is the maximum. The problem can be written into the following form:
         
-        \item
+        Minimize:
+        
+        \begin{equation*}
+            a_m^T x + b_m
+        \end{equation*}
+        
+        Subject to:
+        
+        \begin{equation*}
+            \begin{aligned}
+                a^T_1 x + b_1 &\leq a^T_2 x + b_2 \\
+                a^T_2 x + b_2 &\leq a^T_3 x + b_3 \\
+                a^T_3 x + b_3 &\leq a^T_4 x + b_4 \\
+                ... \\
+                a^T_{m-1} x + b_{m-1} &\leq a^T_m x + b_m \\
+            \end{aligned}
+        \end{equation*}
+        
+        \item %b
+        
+        The Lagrangian is:
+        
+        \begin{equation*}
+            \begin{aligned}
+                L(x, \lambda) &= a_m^T x + b_m + \sum_{i = 1}^{m-1} \lambda_i f_i(x) \\
+                &= a_m^T x + b_m + \sum_{i = 1}^{m-1} \lambda_i (a_i^T x - a_{i+1}^T x + b_i - b_{i+1})
+            \end{aligned}
+        \end{equation*}
+        
+        The Lagrangian dual is:
+        
+        \begin{equation*}
+            g(\lambda) = \inf_{x \in D} (a_m^T x + b_m + \sum_{i = 1}^{m-1} \lambda_i (a_i^T x - a_{i+1}^T x + b_i - b_{i+1}))
+        \end{equation*}
+        
+        Hence,
+        
+        \begin{gather*}
+            g(\lambda) = 
+            \begin{cases}
+                b_m + \sum_{i = 1}^{m-1} \lambda_i (b_i - b_{i+1}) ,\ \ \ \ a_m^T + \sum_{i = 1}^{m - 1} \lambda_i (a_i^T  - a_{i+1}^T)  = 0 \\
+                - \infty , \ \ \ \ otherwise
+            \end{cases}
+        \end{gather*}
+        
+        \item %c
         
     \end{enumerate}
     
