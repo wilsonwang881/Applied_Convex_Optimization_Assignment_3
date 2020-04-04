@@ -16,6 +16,8 @@
 
 \usepackage{pifont}
 
+\usepackage{tikz}
+
 \pagestyle{fancy}
 \lhead{}
 \rhead{}
@@ -34,12 +36,12 @@
     
     \item %Q1
     
-    Re-write the constraint functions:
+    Re-write the inequality constraint functions:
     
     \begin{equation*}
         \begin{aligned}
             \max (l, l_0 \cdot \Vec{1}) &\preceq x \\
-            - x &\preceq - \max (l, l_0 \cdot \Vec{1}) \\
+            - x &\preceq - \max (u, u_0 \cdot \Vec{1}) \\
         \end{aligned}
     \end{equation*}
     
@@ -79,31 +81,31 @@
         \end{cases}
     \end{gather*}
     
-    The Lagrangian is:
+    Adding the equality constraint,the Lagrangian is:
     
     \begin{equation*}
-        L(x, \lambda) = c^T x + \sum_{i = 1}^{4} \lambda_i f_i (x)
+        L(x, \lambda, \upsilon) = c^T x + \sum_{i = 1}^{n} \lambda_i f_i (x) + \upsilon^T (A x - b)
     \end{equation*}
     
     The Lagrange dual function is:
     
     \begin{equation*}
         \begin{aligned}
-            g(\lambda) &= \inf_{x \in D} (c^T x + \sum_{i = 1}^{4} \lambda_i f_i (x)) \\
-            &= \inf_{x \in D} (c^T x + \lambda_1(- x + l) + \lambda_2(- x + l_0 \cdot \Vec{1}) + \lambda_3(x - u) + \lambda_4(x - u_0 \cdot \Vec{1})) \\
-            &= \inf_{x \in D} ((c^T - \lambda_1 - \lambda_2 + \lambda_3 + \lambda_4) x + (\lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1}))
+            g(\lambda, \upsilon) &= \inf_{x \in D} (c^T x + \sum_{i = 1}^{n} \lambda_i f_i (x) + \upsilon^T (A x - b)) \\
+            &= \inf_{x \in D} (c^T x + \lambda_1(- x + l) + \lambda_2(- x + l_0 \cdot \Vec{1}) + \lambda_3(x - u) + \lambda_4(x - u_0 \cdot \Vec{1})) + \upsilon^T (A x - b) \\
+            &= \inf_{x \in D} ((c - \lambda_1^T - \lambda_2^T + \lambda_3^T + \lambda_4^T + A^T \upsilon)^T x + (\lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1} - \upsilon^T b))
         \end{aligned}
     \end{equation*}
     
-    Hence,
-
-    \begin{gather*}
-    g (\lambda) =
-        \begin{cases}
-            \lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1} ,\ \ \ \  c^T - \lambda_1 - \lambda_2 + \lambda_3 + \lambda_4 = 0 \\
-            - \infty ,\ \ \ \  otherwise
-        \end{cases}
-    \end{gather*}
+    Hence, the dual problem is:
+    
+    \begin{equation*}
+        \begin{aligned}
+            &\text{maximize:} \ \ \lambda_1 l + \lambda_2 l_0 \cdot \Vec{1} - \lambda_3 u - \lambda_4 u_0 \cdot \Vec{1} - \upsilon^T b \\
+            &\text{subject to:} \ \ c - \lambda_1^T - \lambda_2^T + \lambda_3^T + \lambda_4^T - \upsilon^T b + A^T \upsilon = 0 \\
+            &\text{with:} \ \  \lambda_1^T, \ \lambda_2^T, \ \lambda_3^T, \ \lambda_4^T \succeq 0
+        \end{aligned}
+    \end{equation*}
     
     \item %Q2
     
@@ -148,17 +150,19 @@
             g(\lambda) = \inf_{x \in D} (a_m^T x + b_m + \sum_{i = 1}^{m-1} \lambda_i (a_i^T x - a_{i+1}^T x + b_i - b_{i+1}))
         \end{equation*}
         
-        Hence,
+        Hence, the dual problem is:
         
-        \begin{gather*}
-            g(\lambda) = 
-            \begin{cases}
-                b_m + \sum_{i = 1}^{m-1} \lambda_i (b_i - b_{i+1}) ,\ \ \ \ a_m^T + \sum_{i = 1}^{m - 1} \lambda_i (a_i^T  - a_{i+1}^T)  = 0 \\
-                - \infty , \ \ \ \ otherwise
-            \end{cases}
-        \end{gather*}
+        \begin{equation*}
+            \begin{aligned}
+                &\text{maximize:} \ \  b_m + \sum_{i = 1}^{m-1} \lambda_i (b_i - b_{i+1}) \\
+                &\text{subject to:} \ \ a_m + \sum_{i = 1}^{m - 1} \lambda_i (a_i  - a_{i+1}) = 0 \\
+                &\text{with:} \ \ \lambda_i \geq 0
+            \end{aligned}
+        \end{equation*}
         
         \item %c
+        
+        The convex optimization problem is strictly feasible. Hence the strong duality holds.
         
     \end{enumerate}
     
@@ -166,13 +170,415 @@
     
     \begin{enumerate}
         
-        \item 
+        \item %a
         
-        \item
+        The feasible set can be represented in the following diagram:
         
-        \item
+        \begin{center}
+        \def\circlea{(1, 1) circle (1)}
+        \def\circleb{(1, -1) circle (2)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-3,-3) grid (3,3);
+            \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+            \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+            \foreach \x in {-3, -2, -1, 0, 1, 2, 3}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-3, -2, -1, 0, 1, 2, 3}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            \begin{scope}[even odd rule]
+                \clip \circlea;
+                \fill[fill=gray] \circleb;
+            \end{scope}
+    
+            \draw \circlea;
+            \draw \circleb;
+        \end{tikzpicture}
+        \end{center}
         
-        \item
+        The intersection shaded in gray is the feasible set.
+        
+        \item %b
+        
+        The objective function and the constraint functions are differentiable. Hence the KKT conditions exist:
+        
+        \begin{enumerate}
+            
+            \item primal constraints: 
+            
+            \begin{gather*}
+                \begin{cases}
+                (x_1 - 1)^2 + (x_2 - 1)^2 - 1 \leq 0 \\
+                (x_1 - 1)^2 + (x_2 + 1)^2 - 2 \leq 0
+                \end{cases}
+            \end{gather*}
+            
+            
+            \item dual constraints: 
+            
+            $\lambda \succeq 0$
+            
+            \item complementary slackness: 
+            
+            \begin{gather*}
+                \begin{cases}
+                    \lambda_1((x_1 - 1)^2 + (x_2 - 1)^2 - 1) = 0 \\
+                    \lambda_2((x_1 - 1)^2 + (x_2 + 1)^2 - 2) = 0
+                \end{cases}
+            \end{gather*}
+            
+            \item gradient of Lagrangian with respect to $x$ vanishes:
+            
+            \begin{gather*}
+                \begin{cases}
+                    2 x_1 + 2 \lambda_1 (x_1 - 1) + 2 \lambda_2 (x_1 - 1) = 0 \\
+                    2 x_2 + 2 \lambda_1 (x_2 - 1) + 2 \lambda_2 (x_2 - 1) = 0
+                \end{cases}
+            \end{gather*}
+            
+        \end{enumerate}
+        
+        The solution is in the form of:
+            
+        \begin{gather*}
+            \begin{cases}
+                x_1 = \frac{\lambda_1 + \lambda_2}{1 + \lambda_1 + \lambda_2} \\
+                x_2 = \frac{\lambda_1 - \lambda_2}{1 + \lambda_1 + \lambda_2}
+            \end{cases}
+        \end{gather*}
+        
+        The optimal solution should be (0, 0) but due to the restriction imposed by the constraint functions, the optimum is never attained. The solution that satisfies the KKT conditions is not optimal. One solution within the feasible set is $(1 - \frac{1}{\sqrt{2}}, 1 - \frac{1}{\sqrt{2}})$, with $\lambda_1 = \sqrt{2} - 1$, $\lambda_2 = 0$.
+        
+        \item %c
+        
+        Since the optimum is not attained, then the strong duality does not hold.
+        
+        \item %d
+        
+        KKT conditions:
+        
+        \begin{enumerate}
+            
+            \item primal constraints: 
+            
+            \begin{gather*}
+                \begin{cases}
+                (x_1 - 1)^2 + (x_2 - 1)^2 - (1 + \mu_1) \leq 0 \\
+                (x_1 - 1)^2 + (x_2 + 1)^2 - (2 + \mu_2) \leq 0
+                \end{cases}
+            \end{gather*}
+            
+            
+            \item dual constraints: 
+            
+            $\lambda \succeq 0$
+            
+            \item complementary slackness: 
+            
+            \begin{gather*}
+                \begin{cases}
+                    \lambda_1((x_1 - 1)^2 + (x_2 - 1)^2 - (1 + \mu_1)) = 0 \\
+                    \lambda_2((x_1 - 1)^2 + (x_2 + 1)^2 - (2 + \mu_2)) = 0
+                \end{cases}
+            \end{gather*}
+            
+            \item gradient of Lagrangian with respect to $x$ vanishes:
+            
+            \begin{gather*}
+                \begin{cases}
+                    2 x_1 + 2 \lambda_1 (x_1 - 1) + 2 \lambda_2 (x_1 - 1) = 0 \\
+                    2 x_2 + 2 \lambda_1 (x_2 - 1) + 2 \lambda_2 (x_2 - 1) = 0
+                \end{cases}
+            \end{gather*}
+            
+        \end{enumerate}
+        
+        The solution is in the form of:
+            
+        \begin{gather*}
+            \begin{cases}
+                x_1 = \frac{\lambda_1 + \lambda_2}{1 + \lambda_1 + \lambda_2} \\
+                x_2 = \frac{\lambda_1 - \lambda_2}{1 + \lambda_1 + \lambda_2}
+            \end{cases}
+        \end{gather*}
+        
+        \newpage
+        
+        The optimal solution is attained at $(0, 0)$, with $\mu_1 = \sqrt{2} - 1$ and $\mu_2 = \sqrt{2} - 2$, i.e.:
+        
+        \begin{center}
+        \def\circlec{(1, 1) circle (sqrt(2)}
+        \def\circled{(1, -1) circle (sqrt(2)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-3,-3) grid (3,3);
+            \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+            \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+            \foreach \x in {-3, -2, -1, 0, 1, 2, 3}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-3, -2, -1, 0, 1, 2, 3}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            \begin{scope}[even odd rule]
+                \clip \circlec;
+                \fill[fill=gray] \circled;
+            \end{scope}
+    
+            \draw \circlec;
+            \draw \circled;
+        \end{tikzpicture}
+        \end{center}
+        
+        Any $\mu_1 > \sqrt{2} - 1$ and $\mu_2 > \sqrt{2} - 2$, i.e. $\mu_1 = 2$ and $\mu_2 = 1$:
+        
+        \begin{center}
+        \def\circlee{(1, 1) circle (3)}
+        \def\circlef{(1, -1) circle (3)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-4,-4) grid (4,4);
+            \draw[->] (-4,0) -- (4,0) node[right] {$x_1$};
+            \draw[->] (0,-4) -- (0,4) node[above] {$x_2$};
+            \foreach \x in {-4, -3, -2, -1, 0, 1, 2, 3, 4}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-4, -3, -2, -1, 0, 1, 2, 3, 4}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            % \begin{scope}[even odd rule]
+            %     \clip \circlee;
+            %     \fill[fill=white] \circlef;
+            % \end{scope}
+    
+            \draw \circlee;
+            \draw \circlef;
+        \end{tikzpicture}
+        \end{center}
+        
+        Will not further change the solution. Hence:
+        
+        \begin{gather*}
+        \text{for}
+            \begin{cases}
+                \mu_1 \geq \sqrt{2} - 1 \\
+                \mu_2 \geq \sqrt{2} - 2
+            \end{cases}
+            \text{then}
+            \begin{cases}
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_1} = 0 \\
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_2} = 0
+            \end{cases}
+        \end{gather*}
+        
+        For the condition that two circles touch each other and no circle or partial circle is contained inside the other, the following constraint on $\mu_1$ and $\mu_2$ can be derived: 
+        
+        \begin{gather*}
+            \begin{cases}
+                - 1 \leq \mu_1 < \sqrt{2} - 1 \\
+                - 2 \leq \mu_2 < \sqrt{2} - 2 \\
+                (1 + \mu_1) + (2 + \mu_2) = 2 -> \mu_1 + \mu_2 = -1
+            \end{cases}
+        \end{gather*}
+        
+        One sample plot:
+        
+        \begin{center}
+        \def\circlee{(1, 1) circle (1)}
+        \def\circlef{(1, -1) circle (1)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-3,-3) grid (3,3);
+            \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+            \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+            \foreach \x in {-3, -2, -1, 0, 1, 2, 3}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-3, -2, -1, 0, 1, 2, 3}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            \draw[dotted] (1, -2) -- (1, 2);
+    
+            \draw \circlee;
+            \draw \circlef;
+        \end{tikzpicture}
+        \end{center}
+        
+        The optimal point is on the vertical line passing through $(1, 0)$ within the range that $-2 \leq x_2 \leq 2$ and $x_1 = 1$.
+        
+        The optimal value for $x_1^2 + x_2^2$ is:
+        
+        \begin{equation*}
+            \mu_1^2 + 1 \text{ or } (1 + \mu_2)^2 + 1
+        \end{equation*}
+        
+        Hence:
+        
+        \begin{gather*}
+            \begin{cases}
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_1} = 2\mu_1 \\
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_2} = 2 + 2 \mu_2
+            \end{cases}
+            \text{given }
+            \begin{cases}
+                - 1 \leq \mu_1 < \sqrt{2} - 1 \\
+                - 2 \leq \mu_2 < \sqrt{2} - 2 \\
+                \mu_1 + \mu_2 = -1
+            \end{cases}
+        \end{gather*}
+        
+        If:
+        
+        \begin{gather*}
+            \begin{cases}
+                \mu_1 < -1 \\
+                \mu_2 < -2
+            \end{cases}
+            \text{or }
+            \mu_1 + \mu_2 < -1
+        \end{gather*}
+        
+        Then the two circles do not exist, since the radius cannot be negative. Or the feasible set does not exist, hence the optimal point or the optimal solution. Because the two circles does not have intersection at all.
+        
+        If the two circles intersect (more than just touch each other) with neither of the two circles touch the $(0, 0)$ point, i.e.:
+        
+        \begin{gather*}
+            \begin{cases}
+                - 1 < \mu_1 < \sqrt{2} - 1 \\
+                - 2 < \mu_2 < \sqrt{2} - 2 \\
+                \mu_1 + \mu_2 \neq -1
+            \end{cases}
+        \end{gather*}
+        
+        One sample plot with $\mu_1 = 0.2$ and $\mu_2 = -2$:
+        
+        \begin{center}
+        \def\circlee{(1, 1) circle (1.2)}
+        \def\circlef{(1, -1) circle (1)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-3,-3) grid (3,3);
+            \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+            \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+            \foreach \x in {-3, -2, -1, 0, 1, 2, 3}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-3, -2, -1, 0, 1, 2, 3}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            \draw[dotted] (1, -2) -- (1, 2);
+    
+            \draw \circlee;
+            \draw \circlef;
+        \end{tikzpicture}
+        \end{center}
+        
+        Under such scenario, the optimal point is always the intersection point on the left. The problem becomes solving the simultaneous equations:
+        
+        \begin{gather*}
+                \begin{cases}
+                (x_1 - 1)^2 + (x_2 - 1)^2 = (1 + \mu_1) \\
+                (x_1 - 1)^2 + (x_2 + 1)^2 = (2 + \mu_2)
+                \end{cases}
+            \end{gather*}
+            
+        \begin{equation*}
+            \begin{aligned}
+                (x_1 - 1)^2 + (x_2 + 1)^2 - (x_1 - 1)^2 - (x_2 - 1)^2 &= (2 + \mu_2) - (1 + \mu_1) \\
+                4 x_2 &= 1 - \mu_1 + \mu_2 \\
+                x_2 &= \frac{1 - \mu_1 + \mu_2}{4}
+            \end{aligned}
+        \end{equation*}
+        
+        Substitute $x_2$ to the simultaneous equations:
+        
+        \begin{equation*}
+            \begin{aligned}
+                (x_1 - 1)^2 &= 1 + \mu_1 - (\frac{1 - \mu_1 + \mu_2}{4} - 1)^2 \\
+                x_1 &= 1 + \sqrt{1 + \mu_1 - (\frac{1 - \mu_1 + \mu_2}{4} - 1)^2}
+            \end{aligned}
+        \end{equation*}
+        
+        Therefore:
+        
+        \begin{equation*}
+            \begin{aligned}
+                x_1^2 + x_2^2 &= 1 + (1 + \mu_1 - (\frac{1 - \mu_1 + \mu_2}{4} - 1)^2) + 2 \sqrt{1 + \mu_1 - (\frac{1 - \mu_1 + \mu_2}{4} - 1)^2} + (\frac{1 - \mu_1 + \mu_2}{4})^2 \\
+                &= 2 + \mu_1 + \frac{- 3 - \mu_1 + \mu_2}{4} + 2 \sqrt{1 + \mu_1 - (\frac{- 3 - \mu_1 + \mu_2}{4})^2} + (\frac{1 - \mu_1 + \mu_2}{4})^2
+            \end{aligned}
+        \end{equation*}
+        
+        Taking the partial derivative:
+        
+        \begin{gather*}
+            \begin{cases}
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_1} = \frac{3}{4} + (1 + \mu_1 - (\frac{- 3 - \mu_1 + \mu_2}{4})^2)^{- \frac{1}{2}}(1 + \frac{-3 _+ \mu_1 + \mu_2}{8}) - \frac{1 - \mu_1 + \mu_2}{2} \\
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_2} = \frac{1}{4} +  (1 + \mu_1 - (\frac{- 3 - \mu_1 + \mu_2}{4})^2)^{- \frac{1}{2}} (-\frac{-3 _+ \mu_1 + \mu_2}{8}) + \frac{1 - \mu_1 + \mu_2}{8}
+            \end{cases}
+            \text{given }
+            \begin{cases}
+                - 1 < \mu_1 < \sqrt{2} - 1 \\
+                - 2 < \mu_2 < \sqrt{2} - 2 \\
+                \mu_1 + \mu_2 \neq -1
+            \end{cases}
+        \end{gather*}
+        
+        If one circle contains $(0, 0)$ while the other one does not contain $(0, 0)$, like in the following plot:
+        
+        \begin{center}
+        \def\circlee{(1, 1) circle (1.2)}
+        \def\circlef{(1, -1) circle (2)}
+            \begin{tikzpicture}
+            \draw[step=1cm,gray,very thin] (-3,-3) grid (3,3);
+            \draw[->] (-3,0) -- (3,0) node[right] {$x_1$};
+            \draw[->] (0,-3) -- (0,3) node[above] {$x_2$};
+            \foreach \x in {-3, -2, -1, 0, 1, 2, 3}
+               \draw (\x cm,1pt) -- (\x cm,-1pt) node[anchor=north] {$\x$};
+            \foreach \y in {-3, -2, -1, 0, 1, 2, 3}
+                \draw (1pt,\y cm) -- (-1pt,\y cm) node[anchor=east] {$\y$};
+                
+            \draw[dotted] (1, -2) -- (1, 2);
+    
+            \draw \circlee;
+            \draw \circlef;
+        \end{tikzpicture}
+        \end{center}
+        
+        $\mu_1$ and $\mu_2$ are in the range of:
+        
+        \begin{gather*}
+            \begin{cases}
+                - 1 < \mu_1 < \sqrt{2} - 1 \\
+                \sqrt{2} - 2 \leq \mu_2
+            \end{cases}
+            \text{or}
+            \begin{cases}
+                 \sqrt{2} - 1 \leq \mu_1\\
+                 - 2 < \mu_2 < \sqrt{2} - 2
+            \end{cases}
+        \end{gather*}
+        
+        Then the optimal point is always be the intersection between the line $x_1 = x_2$ or the line $x_1 = - x_2$ and the smaller circle. This can be put into the following form:
+        
+        \begin{gather*}
+            x_1^2 + x_2^2 = (\sqrt{2} - (1 + \mu_1))^2 \text{, given}
+            \begin{cases}
+                - 1 < \mu_1 < \sqrt{2} - 1 \\
+                \sqrt{2} - 2 \leq \mu_2
+            \end{cases}
+            \text{, hence}
+            \begin{cases}
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_1} = - 2 (\sqrt{2} - (1 + \mu_1)) \\
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_2} = 0
+            \end{cases}
+        \end{gather*}
+        
+        Or:
+        
+        \begin{gather*}
+            x_1^2 + x_2^2 = (\sqrt{2} - (2 + \mu_2))^2 \text{, given}
+            \begin{cases}
+               \sqrt{2} - 1 \leq \mu_1\\
+                - 2 < \mu_2 < \sqrt{2} - 2
+            \end{cases}
+            \text{, hence}
+            \begin{cases}
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_1} = 0 \\
+                \frac{\partial p*(\mu_1, \mu_2)}{\partial \mu_2} = - 2 (\sqrt{2} - (2 + \mu_2))
+            \end{cases}
+        \end{gather*}
         
     \end{enumerate}
     
@@ -180,9 +586,39 @@
     
     \begin{enumerate}
         
-        \item 
+        \item %a
         
-        \item
+        The natural logarithm function is concave. The max function is convex. The summation function is convex. Hence the objective function is convex. The subjective function is convex. Hence the problem is convex.
+        
+        \item %b
+        
+        KKT conditions:
+        
+        \begin{enumerate}
+            
+            \item primal constraints: 
+            
+            \begin{equation*}
+                \sum_{i = 1}^{m} d_i - D \leq 0
+            \end{equation*}
+            
+            \item dual constraints: 
+            
+            $\lambda \succeq 0$
+            
+            \item complementary slackness: 
+            
+            \begin{equation*}
+                \lambda (\sum_{i = 1}^{m} d_i - D) = 0 
+            \end{equation*}
+            
+            \item gradient of Lagrangian with respect to $d$ vanishes:
+            
+            \begin{equation*}
+                \frac{d}{d d} \sum_{i = 1}^{m} \max \{\ln \frac{\sigma_i^2}{d_i}, 0\} + \lambda m = 0
+            \end{equation*}
+            
+        \end{enumerate}
         
         \item
         
